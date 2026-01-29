@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+/* Custom theme configuration for Tailwind v4 */
+@theme {
+  /* ETD Brand Colors */
+  --color-etd-orange: #D4740C;
+  --color-etd-orange-light: #E8A04C;
+  --color-etd-orange-dark: #B5620A;
+  --color-etd-blue: #2B5A7C;
+  --color-etd-blue-light: #3D7CA6;
+
+  /* Level Badge Colors */
+  --color-level-primary: #22c55e;
+  --color-level-secondary: #14b8a6;
+  --color-level-jc: #f97316;
+  --color-level-mixed: #8b5cf6;
+
+  /* Font Families */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'DM Sans', system-ui, sans-serif;
+
+  /* Border Radius - MOE GLOW Style */
+  --radius-card: 16px;
+  --radius-button: 100px;
+  --radius-input: 8px;
+  --radius-badge: 100px;
+
+  /* Shadows - MOE GLOW Style */
+  --shadow-card: 0px 4px 8px 0px rgba(0,0,0,0.02), 0px 6px 12px 0px rgba(0,0,0,0.03);
+  --shadow-card-hover: 0px 8px 16px 0px rgba(0,0,0,0.04), 0px 12px 24px 0px rgba(0,0,0,0.05);
+  --shadow-modal: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  color: #020617;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom component classes using regular CSS */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  color: white;
+  transition: background-color 0.2s;
+  background-color: var(--color-etd-orange);
+  border-radius: var(--radius-button);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-etd-orange-dark);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  background-color: #f1f5f9;
+  color: #020617;
+  border-radius: var(--radius-button);
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.card {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s;
+  outline: none;
+  background-color: #f1f5f9;
+  border-radius: var(--radius-input);
+  border: 1px solid transparent;
+}
+
+.input-field:focus {
+  border-color: var(--color-etd-orange);
+  background-color: white;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-badge);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
