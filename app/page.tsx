@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Header from '@/components/Header';
 import FilterBar from '@/components/FilterBar';
 import ResourceList from '@/components/ResourceList';
@@ -9,16 +9,34 @@ import { Resource, Filters, DEFAULT_FILTERS } from '@/lib/types';
 import { mockResources, mockFilterOptions, filterResources } from '@/lib/mockData';
 
 const ITEMS_PER_PAGE = 10;
+const STORAGE_KEY = 'edtech-marketplace-resources';
 
 export default function Home() {
+  const [resources, setResources] = useState<Resource[]>([]);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load resources from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setResources(JSON.parse(stored));
+      } catch {
+        setResources(mockResources);
+      }
+    } else {
+      setResources(mockResources);
+    }
+    setIsLoading(false);
+  }, []);
 
   // Filter resources based on current filters
   const filteredResources = useMemo(() => {
-    return filterResources(mockResources, filters);
-  }, [filters]);
+    return filterResources(resources, filters);
+  }, [resources, filters]);
 
   // Paginate filtered resources
   const paginatedResources = useMemo(() => {
@@ -81,6 +99,7 @@ export default function Home() {
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={handlePageChange}
           onResourceClick={handleResourceClick}
+          isLoading={isLoading}
         />
       </main>
 
