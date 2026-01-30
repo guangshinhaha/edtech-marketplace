@@ -3,6 +3,7 @@
 import { Resource } from '@/lib/types';
 import ResourceCard from './ResourceCard';
 import Pagination from './Pagination';
+import { Package, SearchX } from 'lucide-react';
 
 interface ResourceListProps {
   resources: Resource[];
@@ -12,6 +13,33 @@ interface ResourceListProps {
   onPageChange: (page: number) => void;
   onResourceClick: (resource: Resource) => void;
   isLoading?: boolean;
+}
+
+function SkeletonCard({ index }: { index: number }) {
+  return (
+    <div
+      className="bg-white rounded-2xl border-2 border-[#F0F3F7] p-5 sm:p-6 animate-fade-in-up"
+      style={{ animationDelay: `${index * 75}ms`, opacity: 0 }}
+    >
+      <div className="flex gap-4 sm:gap-5">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl skeleton" />
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex-1">
+              <div className="h-3 w-20 skeleton rounded-full mb-2" />
+              <div className="h-5 w-3/4 skeleton rounded-lg" />
+            </div>
+            <div className="h-6 w-20 skeleton rounded-full" />
+          </div>
+          <div className="flex gap-2 mt-3">
+            <div className="h-6 w-24 skeleton rounded-full" />
+            <div className="h-6 w-16 skeleton rounded-full" />
+          </div>
+          <div className="h-4 w-full skeleton rounded-lg mt-3 hidden sm:block" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ResourceList({
@@ -29,16 +57,7 @@ export default function ResourceList({
     return (
       <div className="flex flex-col gap-4">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-200 p-4 animate-pulse">
-            <div className="flex gap-4">
-              <div className="w-12 h-12 rounded-xl bg-slate-200" />
-              <div className="flex-1">
-                <div className="h-3 bg-slate-200 rounded w-24 mb-2" />
-                <div className="h-5 bg-slate-200 rounded w-3/4 mb-3" />
-                <div className="h-3 bg-slate-200 rounded w-1/2" />
-              </div>
-            </div>
-          </div>
+          <SkeletonCard key={i} index={i} />
         ))}
       </div>
     );
@@ -46,66 +65,81 @@ export default function ResourceList({
 
   if (resources.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-slate-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+      <div className="text-center py-20 animate-fade-in-up">
+        {/* Empty state illustration */}
+        <div className="relative w-24 h-24 mx-auto mb-6">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#E85D4C]/20 to-[#E8A838]/20 rounded-3xl rotate-6" />
+          <div className="absolute inset-0 bg-white rounded-3xl shadow-lg flex items-center justify-center">
+            <SearchX className="w-10 h-10 text-[#E85D4C]" />
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-1">No resources found</h3>
-        <p className="text-slate-600">Try adjusting your filters or search terms</p>
+
+        <h3 className="text-xl font-bold text-[#1A2B4A] mb-2 font-[family-name:var(--font-display)]">
+          No resources found
+        </h3>
+        <p className="text-[#1A2B4A]/60 max-w-md mx-auto">
+          Try adjusting your filters or search terms to discover more EdTech resources
+        </p>
       </div>
     );
   }
 
   return (
     <div>
-      {/* Results count */}
-      <div className="mb-4">
-        <p className="text-sm text-slate-600">
-          {totalCount} resource{totalCount !== 1 ? 's' : ''} found
-        </p>
+      {/* Results header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 animate-fade-in-up">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10B981]/10 to-[#10B981]/5 flex items-center justify-center">
+            <Package className="w-5 h-5 text-[#10B981]" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-[#1A2B4A] font-[family-name:var(--font-display)]">
+              {totalCount} resource{totalCount !== 1 ? 's' : ''} found
+            </p>
+            <p className="text-xs text-[#1A2B4A]/50">
+              Browse and click to preview
+            </p>
+          </div>
+        </div>
+
+        {/* Level legend */}
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span className="text-xs font-semibold text-[#1A2B4A]/60 uppercase tracking-wide font-[family-name:var(--font-display)]">
+            Levels:
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
+            <span className="text-xs text-[#1A2B4A]/70">Primary</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9]" />
+            <span className="text-xs text-[#1A2B4A]/70">Secondary</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
+            <span className="text-xs text-[#1A2B4A]/70">JC/CI</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]" />
+            <span className="text-xs text-[#1A2B4A]/70">Mixed</span>
+          </div>
+        </div>
       </div>
 
-      {/* Level legend */}
-      <div className="flex flex-wrap items-center gap-4 mb-6 text-sm">
-        <span className="text-slate-600">Levels:</span>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-green-500" />
-          <span className="text-slate-700">Primary</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-teal-500" />
-          <span className="text-slate-700">Secondary</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-orange-500" />
-          <span className="text-slate-700">JC/CI</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-purple-500" />
-          <span className="text-slate-700">Mixed</span>
-        </div>
-      </div>
-
-      {/* Resource cards */}
-      <div className="flex flex-col gap-3">
-        {resources.map((resource) => (
-          <ResourceCard
+      {/* Resource cards with staggered animation */}
+      <div className="flex flex-col gap-4">
+        {resources.map((resource, index) => (
+          <div
             key={resource.id}
-            resource={resource}
-            onClick={() => onResourceClick(resource)}
-          />
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${index * 50}ms`, opacity: 0 }}
+          >
+            <ResourceCard
+              resource={resource}
+              onClick={() => onResourceClick(resource)}
+              index={index}
+            />
+          </div>
         ))}
       </div>
 

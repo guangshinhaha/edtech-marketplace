@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { X, ExternalLink, Play, FileText, Presentation, File } from 'lucide-react';
+import { X, ExternalLink, Play, FileText, Presentation, File, Calendar, Building2, MapPin, Layers, Tag } from 'lucide-react';
 import { Resource } from '@/lib/types';
 import { getEmbedUrl, formatDate } from '@/lib/utils';
 import LevelBadge from './LevelBadge';
@@ -16,20 +16,36 @@ function ResourceTypeIcon({ type }: { type: Resource['resource_type'] }) {
 
   switch (type) {
     case 'video':
-      return <Play {...iconProps} className="w-5 h-5 text-red-500" />;
+      return <Play {...iconProps} className="w-5 h-5 text-rose-500" />;
     case 'pdf':
-      return <FileText {...iconProps} className="w-5 h-5 text-red-600" />;
+      return <FileText {...iconProps} className="w-5 h-5 text-rose-600" />;
     case 'ppt':
-      return <Presentation {...iconProps} className="w-5 h-5 text-orange-500" />;
+      return <Presentation {...iconProps} className="w-5 h-5 text-amber-500" />;
     case 'doc':
-      return <FileText {...iconProps} className="w-5 h-5 text-blue-500" />;
+      return <FileText {...iconProps} className="w-5 h-5 text-sky-500" />;
     default:
       return <File {...iconProps} className="w-5 h-5 text-slate-400" />;
   }
 }
 
+function getIconBgClass(type: Resource['resource_type']) {
+  switch (type) {
+    case 'video':
+      return 'icon-bg-video';
+    case 'pdf':
+      return 'icon-bg-pdf';
+    case 'ppt':
+      return 'icon-bg-ppt';
+    case 'doc':
+      return 'icon-bg-doc';
+    case 'link':
+      return 'icon-bg-link';
+    default:
+      return 'bg-slate-100';
+  }
+}
+
 export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
-  // Handle escape key
   const handleEscape = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
@@ -52,33 +68,57 @@ export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
   const embedUrl = getEmbedUrl(resource.drive_url);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="modal-backdrop absolute inset-0 animate-fade-in"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="modal-content relative w-full max-w-6xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 p-6 border-b border-slate-200">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+        <div className="relative flex items-start justify-between gap-4 p-6 sm:p-8 border-b border-[#F0F3F7]">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#FEF2F0] to-transparent rounded-bl-full opacity-50" />
+
+          <div className="relative flex items-start gap-4 min-w-0">
+            {/* Icon */}
+            <div className={`
+              flex-shrink-0 w-14 h-14 rounded-xl
+              ${getIconBgClass(resource.resource_type)}
+              flex items-center justify-center
+              shadow-sm
+            `}>
               <ResourceTypeIcon type={resource.resource_type} />
             </div>
+
             <div className="min-w-0">
-              <p className="text-xs font-medium text-[#D4740C] mb-0.5">
-                {resource.topic_title}
-              </p>
-              <h2 className="text-xl font-bold text-slate-900 leading-snug">
+              {/* Topic title */}
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#E85D4C]" />
+                <p className="text-xs font-semibold text-[#E85D4C] font-[family-name:var(--font-display)] uppercase tracking-wide">
+                  {resource.topic_title}
+                </p>
+              </div>
+
+              {/* Resource title */}
+              <h2 className="text-xl sm:text-2xl font-bold text-[#1A2B4A] leading-snug font-[family-name:var(--font-display)]">
                 {resource.resource_title}
               </h2>
             </div>
           </div>
+
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="flex-shrink-0 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="
+              relative flex-shrink-0 w-10 h-10 rounded-xl
+              bg-[#F0F3F7] hover:bg-[#E85D4C]
+              flex items-center justify-center
+              text-[#1A2B4A]/60 hover:text-white
+              transition-all duration-300
+            "
           >
             <X className="w-5 h-5" />
           </button>
@@ -87,7 +127,7 @@ export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
         {/* Content */}
         <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
           {/* Preview iframe */}
-          <div className="flex-1 bg-slate-100 min-h-[300px] lg:min-h-0">
+          <div className="flex-1 bg-[#F0F3F7] min-h-[300px] lg:min-h-0 relative">
             {embedUrl ? (
               <iframe
                 src={embedUrl}
@@ -97,64 +137,80 @@ export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
                 title={resource.resource_title}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-500">
-                <p>Preview not available</p>
+              <div className="w-full h-full flex flex-col items-center justify-center text-[#1A2B4A]/50 p-8">
+                <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center mb-4">
+                  <File className="w-8 h-8 text-[#1A2B4A]/30" />
+                </div>
+                <p className="text-sm font-medium">Preview not available</p>
+                <p className="text-xs mt-1">Click the button below to open in Google Drive</p>
               </div>
             )}
           </div>
 
           {/* Metadata sidebar */}
-          <div className="w-full lg:w-80 flex-shrink-0 p-6 border-t lg:border-t-0 lg:border-l border-slate-200 overflow-y-auto">
-            <div className="space-y-4">
+          <div className="w-full lg:w-96 flex-shrink-0 p-6 sm:p-8 border-t lg:border-t-0 lg:border-l border-[#F0F3F7] overflow-y-auto bg-white">
+            <div className="space-y-6">
               {/* Level */}
               <div>
-                <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                  Level
-                </h4>
+                <div className="flex items-center gap-2 mb-2">
+                  <Layers className="w-4 h-4 text-[#1A2B4A]/40" />
+                  <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide font-[family-name:var(--font-display)]">
+                    Level
+                  </h4>
+                </div>
                 <LevelBadge level={resource.level} size="md" />
               </div>
 
               {/* Subject */}
               {resource.subject && (
                 <div>
-                  <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                    Subject
-                  </h4>
-                  <p className="text-sm text-slate-900">{resource.subject}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Tag className="w-4 h-4 text-[#1A2B4A]/40" />
+                    <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide font-[family-name:var(--font-display)]">
+                      Subject
+                    </h4>
+                  </div>
+                  <p className="text-sm font-medium text-[#1A2B4A]">{resource.subject}</p>
                 </div>
               )}
 
               {/* School */}
               {resource.school_name && (
                 <div>
-                  <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                    School
-                  </h4>
-                  <p className="text-sm text-slate-900">{resource.school_name}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building2 className="w-4 h-4 text-[#1A2B4A]/40" />
+                    <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide font-[family-name:var(--font-display)]">
+                      School
+                    </h4>
+                  </div>
+                  <p className="text-sm font-medium text-[#1A2B4A]">{resource.school_name}</p>
                 </div>
               )}
 
               {/* Cluster */}
               {resource.cluster && (
                 <div>
-                  <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                    Cluster
-                  </h4>
-                  <p className="text-sm text-slate-900">{resource.cluster}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4 text-[#1A2B4A]/40" />
+                    <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide font-[family-name:var(--font-display)]">
+                      Cluster
+                    </h4>
+                  </div>
+                  <p className="text-sm font-medium text-[#1A2B4A]">{resource.cluster}</p>
                 </div>
               )}
 
               {/* Themes */}
               {resource.theme && resource.theme.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
+                  <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide mb-3 font-[family-name:var(--font-display)]">
                     Themes
                   </h4>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2">
                     {resource.theme.map((theme) => (
                       <span
                         key={theme}
-                        className="px-2 py-0.5 text-xs font-medium text-slate-600 bg-slate-100 rounded-full"
+                        className="px-3 py-1.5 text-xs font-semibold text-[#1A2B4A]/70 bg-[#F0F3F7] rounded-full"
                       >
                         {theme}
                       </span>
@@ -165,29 +221,34 @@ export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
 
               {/* Source */}
               <div>
-                <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide mb-2 font-[family-name:var(--font-display)]">
                   Source
                 </h4>
-                <p className="text-sm text-slate-900">{resource.source}</p>
+                <span className="inline-block px-3 py-1.5 text-xs font-semibold text-[#E85D4C] bg-[#FEF2F0] rounded-full">
+                  {resource.source}
+                </span>
               </div>
 
               {/* Date */}
               {resource.date && (
                 <div>
-                  <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                    Date
-                  </h4>
-                  <p className="text-sm text-slate-900">{formatDate(resource.date)}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-4 h-4 text-[#1A2B4A]/40" />
+                    <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide font-[family-name:var(--font-display)]">
+                      Date
+                    </h4>
+                  </div>
+                  <p className="text-sm font-medium text-[#1A2B4A]">{formatDate(resource.date)}</p>
                 </div>
               )}
 
               {/* Synopsis */}
               {resource.synopsis && (
-                <div>
-                  <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
+                <div className="pt-4 border-t border-[#F0F3F7]">
+                  <h4 className="text-xs font-bold text-[#1A2B4A]/60 uppercase tracking-wide mb-3 font-[family-name:var(--font-display)]">
                     Synopsis
                   </h4>
-                  <p className="text-sm text-slate-700 leading-relaxed">
+                  <p className="text-sm text-[#1A2B4A]/70 leading-relaxed">
                     {resource.synopsis}
                   </p>
                 </div>
@@ -197,10 +258,17 @@ export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 p-4 border-t border-slate-200 bg-slate-50">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 p-4 sm:p-6 border-t border-[#F0F3F7] bg-[#FAFBFC]">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-colors"
+            className="
+              px-6 py-3 text-sm font-semibold
+              text-[#1A2B4A] bg-white
+              border-2 border-[#F0F3F7] hover:border-[#E85D4C]/20
+              rounded-xl
+              transition-all duration-300
+              font-[family-name:var(--font-display)]
+            "
           >
             Close
           </button>
@@ -208,7 +276,19 @@ export default function PreviewModal({ resource, onClose }: PreviewModalProps) {
             href={resource.drive_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#D4740C] hover:bg-[#B5620A] rounded-full transition-colors"
+            className="
+              inline-flex items-center justify-center gap-2
+              px-6 py-3 text-sm font-semibold
+              text-white
+              bg-gradient-to-r from-[#E85D4C] to-[#C94A3B]
+              hover:from-[#FF7A6B] hover:to-[#E85D4C]
+              rounded-xl
+              shadow-[0_4px_14px_rgba(232,93,76,0.35)]
+              hover:shadow-[0_6px_20px_rgba(232,93,76,0.45)]
+              transition-all duration-300
+              transform hover:-translate-y-0.5
+              font-[family-name:var(--font-display)]
+            "
           >
             <ExternalLink className="w-4 h-4" />
             Open in Google Drive

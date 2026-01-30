@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { Search, X, ChevronDown, Check } from 'lucide-react';
+import { Search, X, ChevronDown, Check, SlidersHorizontal } from 'lucide-react';
 import { Filters, FilterOptions, DEFAULT_FILTERS } from '@/lib/types';
 
 interface FilterBarProps {
@@ -18,6 +18,7 @@ interface DropdownProps {
   multiSelect?: boolean;
   searchable?: boolean;
   placeholder?: string;
+  icon?: React.ReactNode;
 }
 
 function Dropdown({
@@ -27,7 +28,8 @@ function Dropdown({
   onChange,
   multiSelect = false,
   searchable = false,
-  placeholder = 'Select...',
+  placeholder = 'All',
+  icon,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,52 +87,81 @@ function Dropdown({
     return value === optionValue;
   };
 
+  const hasValue = multiSelect
+    ? Array.isArray(value) && value.length > 0
+    : value !== null;
+
   return (
     <div className="relative" ref={dropdownRef}>
-      <label className="block text-xs font-medium text-slate-600 mb-1">{label}</label>
+      <label className="block text-xs font-semibold text-[#1A2B4A]/60 mb-1.5 font-[family-name:var(--font-display)] uppercase tracking-wide">
+        {label}
+      </label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full min-w-[140px] px-3 py-2 text-left bg-slate-100 rounded-lg border border-transparent hover:border-slate-300 focus:border-[#D4740C] focus:bg-white transition-colors flex items-center justify-between gap-2"
+        className={`
+          w-full min-w-[150px] px-4 py-2.5 text-left rounded-xl
+          border-2 transition-all duration-300 flex items-center justify-between gap-2
+          font-[family-name:var(--font-sans)]
+          ${hasValue
+            ? 'bg-[#FEF2F0] border-[#E85D4C]/30 text-[#1A2B4A]'
+            : 'bg-white border-[#F0F3F7] text-[#1A2B4A]/70 hover:border-[#E85D4C]/20'
+          }
+          ${isOpen ? 'border-[#E85D4C] shadow-[0_0_0_4px_rgba(232,93,76,0.1)]' : ''}
+        `}
       >
-        <span className={`text-sm truncate ${displayValue ? 'text-slate-900' : 'text-slate-500'}`}>
+        <span className="flex items-center gap-2 text-sm font-medium truncate">
+          {icon}
           {displayValue || placeholder}
         </span>
-        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`w-4 h-4 text-[#1A2B4A]/40 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full min-w-[200px] bg-white rounded-lg shadow-lg border border-slate-200 py-1 max-h-60 overflow-auto">
+        <div className="dropdown-menu absolute z-50 mt-2 w-full min-w-[220px] py-2 max-h-64 overflow-auto">
           {searchable && (
-            <div className="px-2 pb-2">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search..."
-                className="w-full px-3 py-2 text-sm bg-slate-100 rounded-md border-0 focus:bg-white focus:ring-1 focus:ring-[#D4740C]"
-                autoFocus
-              />
+            <div className="px-3 pb-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A2B4A]/40" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search..."
+                  className="w-full pl-9 pr-3 py-2 text-sm bg-[#F0F3F7] rounded-lg border-0 focus:bg-white focus:ring-2 focus:ring-[#E85D4C]/20 transition-all"
+                  autoFocus
+                />
+              </div>
             </div>
           )}
           {filteredOptions.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-slate-500">No options found</div>
+            <div className="px-4 py-3 text-sm text-[#1A2B4A]/50">No options found</div>
           ) : (
             filteredOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => handleSelect(option.value)}
-                className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 flex items-center gap-2 ${
-                  isSelected(option.value) ? 'text-[#D4740C] font-medium' : 'text-slate-700'
-                }`}
+                className={`
+                  w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-all
+                  ${isSelected(option.value)
+                    ? 'bg-[#FEF2F0] text-[#E85D4C] font-semibold'
+                    : 'text-[#1A2B4A] hover:bg-[#F0F3F7]'
+                  }
+                `}
               >
                 {multiSelect && (
-                  <span className={`w-4 h-4 rounded border flex items-center justify-center ${
-                    isSelected(option.value)
-                      ? 'bg-[#D4740C] border-[#D4740C]'
-                      : 'border-slate-300'
-                  }`}>
+                  <span
+                    className={`
+                      w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all
+                      ${isSelected(option.value)
+                        ? 'bg-[#E85D4C] border-[#E85D4C]'
+                        : 'border-[#1A2B4A]/20'
+                      }
+                    `}
+                  >
                     {isSelected(option.value) && <Check className="w-3 h-3 text-white" />}
                   </span>
                 )}
@@ -151,7 +182,6 @@ export default function FilterBar({ filters, filterOptions, onFiltersChange }: F
     setLocalSearch(e.target.value);
   }, []);
 
-  // Debounced search update
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localSearch !== filters.search) {
@@ -175,84 +205,125 @@ export default function FilterBar({ filters, filterOptions, onFiltersChange }: F
     filters.cluster !== null ||
     filters.search !== '';
 
-  return (
-    <div className="bg-white border-b border-slate-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex flex-col gap-4">
-          {/* Filter dropdowns */}
-          <div className="flex flex-wrap gap-3">
-            <Dropdown
-              label="Source"
-              value={filters.source}
-              options={filterOptions.sources}
-              onChange={(val) => onFiltersChange({ ...filters, source: (val as string[]) || [] })}
-              multiSelect
-              placeholder="All sources"
-            />
-            <Dropdown
-              label="Subject"
-              value={filters.subject}
-              options={filterOptions.subjects}
-              onChange={(val) => onFiltersChange({ ...filters, subject: val as string | null })}
-              placeholder="All subjects"
-            />
-            <Dropdown
-              label="Level"
-              value={filters.level}
-              options={filterOptions.levels}
-              onChange={(val) => onFiltersChange({ ...filters, level: val as string | null })}
-              placeholder="All levels"
-            />
-            <Dropdown
-              label="School"
-              value={filters.school_name}
-              options={filterOptions.schools}
-              onChange={(val) => onFiltersChange({ ...filters, school_name: val as string | null })}
-              searchable
-              placeholder="All schools"
-            />
-            <Dropdown
-              label="Theme"
-              value={filters.theme}
-              options={filterOptions.themes}
-              onChange={(val) => onFiltersChange({ ...filters, theme: (val as string[]) || [] })}
-              multiSelect
-              placeholder="All themes"
-            />
-            <Dropdown
-              label="Cluster"
-              value={filters.cluster}
-              options={filterOptions.clusters}
-              onChange={(val) => onFiltersChange({ ...filters, cluster: val as string | null })}
-              placeholder="All clusters"
-            />
-          </div>
+  const activeFilterCount = [
+    filters.source.length > 0,
+    filters.subject !== null,
+    filters.level !== null,
+    filters.school_name !== null,
+    filters.theme.length > 0,
+    filters.cluster !== null,
+  ].filter(Boolean).length;
 
-          {/* Search bar and clear button */}
-          <div className="flex gap-3 items-end">
-            <div className="flex-1 max-w-md">
-              <label className="block text-xs font-medium text-slate-600 mb-1">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={localSearch}
-                  onChange={handleSearchChange}
-                  placeholder="Search by topic or resource title..."
-                  className="w-full pl-10 pr-4 py-2 bg-slate-100 rounded-lg border border-transparent hover:border-slate-300 focus:border-[#D4740C] focus:bg-white transition-colors text-sm"
-                />
+  return (
+    <div className="sticky top-0 z-40 animate-fade-in">
+      {/* Glass background */}
+      <div className="glass border-b border-[#1A2B4A]/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col gap-5">
+            {/* Section header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E85D4C]/10 to-[#E8A838]/10 flex items-center justify-center">
+                  <SlidersHorizontal className="w-5 h-5 text-[#E85D4C]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#1A2B4A] font-[family-name:var(--font-display)]">
+                    Filter Resources
+                  </h3>
+                  <p className="text-xs text-[#1A2B4A]/50">
+                    {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'No filters applied'}
+                  </p>
+                </div>
               </div>
+
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="
+                    group flex items-center gap-2 px-4 py-2 text-sm font-semibold
+                    text-[#E85D4C] hover:text-white
+                    bg-[#FEF2F0] hover:bg-[#E85D4C]
+                    rounded-full transition-all duration-300
+                    font-[family-name:var(--font-display)]
+                  "
+                >
+                  <X className="w-4 h-4" />
+                  <span>Clear all</span>
+                </button>
+              )}
             </div>
 
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"
-              >
-                <X className="w-4 h-4" />
-                Clear filters
-              </button>
-            )}
+            {/* Filter dropdowns grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <Dropdown
+                label="Source"
+                value={filters.source}
+                options={filterOptions.sources}
+                onChange={(val) => onFiltersChange({ ...filters, source: (val as string[]) || [] })}
+                multiSelect
+                placeholder="All sources"
+              />
+              <Dropdown
+                label="Subject"
+                value={filters.subject}
+                options={filterOptions.subjects}
+                onChange={(val) => onFiltersChange({ ...filters, subject: val as string | null })}
+                placeholder="All subjects"
+              />
+              <Dropdown
+                label="Level"
+                value={filters.level}
+                options={filterOptions.levels}
+                onChange={(val) => onFiltersChange({ ...filters, level: val as string | null })}
+                placeholder="All levels"
+              />
+              <Dropdown
+                label="School"
+                value={filters.school_name}
+                options={filterOptions.schools}
+                onChange={(val) => onFiltersChange({ ...filters, school_name: val as string | null })}
+                searchable
+                placeholder="All schools"
+              />
+              <Dropdown
+                label="Theme"
+                value={filters.theme}
+                options={filterOptions.themes}
+                onChange={(val) => onFiltersChange({ ...filters, theme: (val as string[]) || [] })}
+                multiSelect
+                placeholder="All themes"
+              />
+              <Dropdown
+                label="Cluster"
+                value={filters.cluster}
+                options={filterOptions.clusters}
+                onChange={(val) => onFiltersChange({ ...filters, cluster: val as string | null })}
+                placeholder="All clusters"
+              />
+            </div>
+
+            {/* Search bar */}
+            <div className="relative max-w-xl">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-lg bg-[#E85D4C]/10">
+                <Search className="w-4 h-4 text-[#E85D4C]" />
+              </div>
+              <input
+                type="text"
+                value={localSearch}
+                onChange={handleSearchChange}
+                placeholder="Search by topic or resource title..."
+                className="
+                  w-full pl-14 pr-5 py-3.5
+                  bg-white rounded-xl
+                  border-2 border-[#F0F3F7] hover:border-[#E85D4C]/20
+                  focus:border-[#E85D4C] focus:shadow-[0_0_0_4px_rgba(232,93,76,0.1)]
+                  transition-all duration-300
+                  text-sm font-medium text-[#1A2B4A]
+                  placeholder:text-[#1A2B4A]/40
+                  font-[family-name:var(--font-sans)]
+                "
+              />
+            </div>
           </div>
         </div>
       </div>
